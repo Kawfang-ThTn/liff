@@ -2,36 +2,61 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
+    />
     <title>ลงทะเบียนรับเอกสาร</title>
     <link rel="stylesheet" href="css/style.css" media="all" />
   </head>
   <body>
-    <img id="pictureUrl" style="width: 100px; border-radius: 50%; margin: 20px auto; display: block;" />
+    <img
+      id="pictureUrl"
+      style="
+        width: 100px;
+        border-radius: 50%;
+        margin: 20px auto;
+        display: block;
+      "
+    />
     <p id="displayName" style="text-align: center; font-weight: bold"></p>
 
     <div id="registration-form" style="padding: 20px">
-      <div style="margin-bottom: 15px;">
-        <label style="font-weight: bold; display: block;">LINE User ID:</label>
+      <div style="margin-bottom: 15px">
+        <label style="font-weight: bold; display: block">LINE User ID:</label>
         <input
           type="text"
           id="userId"
           readonly
-          style="width: 100%; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; color: #666;"
-        />
-      </div>
-
-      <div style="margin-bottom: 15px;">
-        <label style="font-weight: bold; display: block;">รหัสลูกค้า / เลขบัตรประชาชน:</label>
-        <input
-          type="text"
-          id="input_customer_id"
-          placeholder="กรุณากรอกรหัสของคุณ"
-          style="width: 100%; padding: 10px; border: 1px solid #06C755; border-radius: 8px;"
+          style="
+            width: 100%;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            color: #666;
+          "
         />
       </div>
 
       <div style="margin-bottom: 15px">
+        <label style="font-weight: bold; display: block"
+          >รหัสลูกค้า / เลขบัตรประชาชน:</label
+        >
+        <input
+          type="text"
+          id="input_customer_id"
+          placeholder="กรุณากรอกรหัสของคุณ"
+          style="
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #06c755;
+            border-radius: 8px;
+          "
+        />
+      </div>
+
+      <!-- <div style="margin-bottom: 15px">
         <label style="font-weight: bold; display: block;">เบอร์โทรศัพท์:</label>
         <input
           type="tel"
@@ -39,14 +64,37 @@
           placeholder="08xxxxxxxx"
           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"
         />
-      </div>
+      </div> -->
 
-      <button
+      <!-- <button
         id="btnRegister"
         onclick="registerToLaravel()"
-        style="background-color: #06c755; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer;"
+        style="
+          background-color: #06c755;
+          color: white;
+          border: none;
+          padding: 15px;
+          width: 100%;
+          border-radius: 8px;
+          font-size: 16px;
+          cursor: pointer;
+        "
+      > -->
+      <button
+        id="btnRegister"
+        onclick="checkCustomer()"
+        style="
+          background-color: #06c755;
+          color: white;
+          border: none;
+          padding: 15px;
+          width: 100%;
+          border-radius: 8px;
+          font-size: 16px;
+          cursor: pointer;
+        "
       >
-        ยืนยันลงทะเบียน
+        ตรวจสอบข้อมูล
       </button>
     </div>
 
@@ -81,7 +129,9 @@
         try {
           const friend = await liff.getFriendship();
           if (!friend.friendFlag) {
-            const goAdd = confirm("กรุณาเพิ่มเราเป็นเพื่อน เพื่อรับแจ้งเตือนเอกสาร");
+            const goAdd = confirm(
+              "กรุณาเพิ่มเราเป็นเพื่อน เพื่อรับแจ้งเตือนเอกสาร",
+            );
             if (goAdd) {
               window.location.href = "https://line.me/R/ti/p/@YOUR-BOT-ID";
             }
@@ -91,45 +141,113 @@
         }
       }
 
-      async function registerToLaravel() {
-        const userId = document.getElementById("userId").value.trim();
-        const customerId = document.getElementById("input_customer_id").value.trim();
-        const phone = document.getElementById("input_phone").value.trim();
+      // async function registerToLaravel() {
+      //   const userId = document.getElementById("userId").value.trim();
+      //   const customerId = document.getElementById("input_customer_id").value.trim();
+      //   const phone = document.getElementById("input_phone").value.trim();
+      //   const btn = document.getElementById("btnRegister");
+
+      //   if (!userId) {
+      //     alert("ไม่พบ LINE User ID กรุณาเข้าใช้งานผ่าน LIFF");
+      //     return;
+      //   }
+
+      //   if (!customerId || !phone) {
+      //     alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      //     return;
+      //   }
+
+      //   const phoneRegex = /^0[0-9]{9}$/;
+      //   if (!phoneRegex.test(phone)) {
+      //     alert("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+      //     return;
+      //   }
+
+      //   btn.disabled = true;
+      //   btn.innerText = "กำลังบันทึก...";
+
+      //   const API_URL = "https://capital-navigate-shallow.ngrok-free.dev/api/check-cust";
+      //   // const API_URL = "https://your-laravel-domain.com/api/register-line";
+
+      //   try {
+      //     const response = await fetch(API_URL, {
+      //       method: "POST",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         "Accept": "application/json"
+      //       },
+      //       body: JSON.stringify({
+      //         line_user_id: userId,
+      //         customer_id: customerId,
+      //         phone: phone
+      //       })
+      //     });
+
+      //     const text = await response.text();
+      //     let result = {};
+
+      //     try {
+      //       result = JSON.parse(text);
+      //     } catch (e) {
+      //       throw new Error("Response ไม่ใช่ JSON: " + text);
+      //     }
+
+      //     if (!response.ok) {
+      //       throw new Error(result.message || "เกิดข้อผิดพลาดจาก Server");
+      //     }
+
+      //     if (result.success) {
+      //       alert("ลงทะเบียนสำเร็จ!");
+      //       if (liff.isInClient()) {
+      //         liff.closeWindow();
+      //       } else {
+      //         window.close();
+      //       }
+      //     } else {
+      //       alert("ผิดพลาด: " + (result.message || "ไม่ทราบสาเหตุ"));
+      //       btn.disabled = false;
+      //       btn.innerText = "ยืนยันลงทะเบียน";
+      //     }
+      //   } catch (error) {
+      //     console.error("Register error:", error);
+      //     alert("ไม่สามารถติดต่อ Server ได้: " + error.message);
+      //     btn.disabled = false;
+      //     btn.innerText = "ยืนยันลงทะเบียน";
+      //   }
+      // }
+
+      async function checkCustomer() {
+        const idcard = document
+          .getElementById("input_customer_id")
+          .value.trim();
         const btn = document.getElementById("btnRegister");
 
-        if (!userId) {
-          alert("ไม่พบ LINE User ID กรุณาเข้าใช้งานผ่าน LIFF");
+        if (!idcard) {
+          alert("กรุณากรอกเลขบัตรประชาชน");
           return;
         }
 
-        if (!customerId || !phone) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-          return;
-        }
-
-        const phoneRegex = /^0[0-9]{9}$/;
-        if (!phoneRegex.test(phone)) {
-          alert("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+        if (idcard.length !== 13) {
+          alert("เลขบัตรประชาชนต้องมี 13 หลัก");
           return;
         }
 
         btn.disabled = true;
-        btn.innerText = "กำลังบันทึก...";
+        btn.innerText = "กำลังตรวจสอบ...";
 
-        const API_URL = "https://your-laravel-domain.com/api/register-line";
+        const API_URL =
+          "https://capital-navigate-shallow.ngrok-free.dev/api/check-cust";
 
         try {
           const response = await fetch(API_URL, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Accept": "application/json"
+              Accept: "application/json",
             },
             body: JSON.stringify({
-              line_user_id: userId,
-              customer_id: customerId,
-              phone: phone
-            })
+              idcard: idcard,
+            }),
           });
 
           const text = await response.text();
@@ -141,27 +259,22 @@
             throw new Error("Response ไม่ใช่ JSON: " + text);
           }
 
-          if (!response.ok) {
-            throw new Error(result.message || "เกิดข้อผิดพลาดจาก Server");
-          }
-
-          if (result.success) {
-            alert("ลงทะเบียนสำเร็จ!");
-            if (liff.isInClient()) {
-              liff.closeWindow();
-            } else {
-              window.close();
-            }
+          if (response.ok && result.success) {
+            alert(
+              "พบข้อมูลลูกค้า: " +
+                (result.data?.name ||
+                  result.data?.customer_name ||
+                  "ไม่ระบุชื่อ"),
+            );
           } else {
-            alert("ผิดพลาด: " + (result.message || "ไม่ทราบสาเหตุ"));
-            btn.disabled = false;
-            btn.innerText = "ยืนยันลงทะเบียน";
+            alert(result.message || "ไม่พบข้อมูลลูกค้า");
           }
         } catch (error) {
-          console.error("Register error:", error);
+          console.error("Check customer error:", error);
           alert("ไม่สามารถติดต่อ Server ได้: " + error.message);
+        } finally {
           btn.disabled = false;
-          btn.innerText = "ยืนยันลงทะเบียน";
+          btn.innerText = "ตรวจสอบข้อมูล";
         }
       }
 
