@@ -22,7 +22,7 @@
     <p id="displayName" style="text-align: center; font-weight: bold"></p>
 
     <div id="registration-form" style="padding: 20px">
-      <div style="margin-bottom: 15px">
+      <!-- <div style="margin-bottom: 15px">
         <label>รหัสลูกค้า / Citizen ID:</label>
         <input
           type="text"
@@ -36,7 +36,7 @@
             border-radius: 8px;
           "
         />
-      </div>
+      </div> -->
       <div style="margin-bottom: 15px">
         <label>เบอร์โทรศัพท์:</label>
         <input
@@ -55,7 +55,7 @@
 
       <div style="margin-bottom: 15px;">
         <label style="font-weight: bold; display: block;">LINE User ID:</label>
-        <input type="text" id="display_userId" readonly 
+        <input type="text" id="userId" readonly 
             style="width: 100%; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; color: #666;">
     </div>
 
@@ -64,7 +64,7 @@
         <input type="text" id="input_customer_id" placeholder="กรุณากรอกรหัสของคุณ" 
             style="width: 100%; padding: 10px; border: 1px solid #06C755; border-radius: 8px;">
     </div>
-    
+
       <button
         id="btnRegister"
         onclick="registerToLaravel()"
@@ -83,7 +83,7 @@
       </button>
     </div>
 
-    <input type="hidden" id="hidden_userId" />
+    <!-- <input type="hidden" id="hidden_userId" /> -->
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
@@ -137,7 +137,8 @@
       async function getUserProfile() {
         const profile = await liff.getProfile();
         document.getElementById("pictureUrl").src = profile.pictureUrl;
-        document.getElementById("userId").append(profile.userId);
+        // document.getElementById("userId").append(profile.userId);
+        document.getElementById("userId").value = profile.userId;
         document.getElementById("statusMessage").append(profile.statusMessage);
         document.getElementById("displayName").append(profile.displayName);
         document
