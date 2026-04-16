@@ -2,169 +2,71 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
-    />
-    <title>My LIFF app</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover" />
+    <title>ลงทะเบียนรับเอกสาร</title>
     <link rel="stylesheet" href="css/style.css" media="all" />
   </head>
   <body>
-    <img
-      id="pictureUrl"
-      style="
-        width: 100px;
-        border-radius: 50%;
-        margin: 20px auto;
-        display: block;
-      "
-    />
+    <img id="pictureUrl" style="width: 100px; border-radius: 50%; margin: 20px auto; display: block;" />
     <p id="displayName" style="text-align: center; font-weight: bold"></p>
 
     <div id="registration-form" style="padding: 20px">
-      <!-- <div style="margin-bottom: 15px">
-        <label>รหัสลูกค้า / Citizen ID:</label>
-        <input
-          type="text"
-          id="input_customer_id"
-          placeholder="กรอกรหัสลูกค้า"
-          style="
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-          "
-        />
-      </div> -->
-      <div style="margin-bottom: 15px">
-        <label>เบอร์โทรศัพท์:</label>
-        <input
-          type="tel"
-          id="input_phone"
-          placeholder="08xxxxxxxx"
-          style="
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-          "
-        />
-      </div>
-
+      
       <div style="margin-bottom: 15px;">
         <label style="font-weight: bold; display: block;">LINE User ID:</label>
         <input type="text" id="userId" readonly 
             style="width: 100%; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; color: #666;">
-    </div>
+      </div>
 
-    <div style="margin-bottom: 15px;">
+      <div style="margin-bottom: 15px;">
         <label style="font-weight: bold; display: block;">รหัสลูกค้า / เลขบัตรประชาชน:</label>
         <input type="text" id="input_customer_id" placeholder="กรุณากรอกรหัสของคุณ" 
             style="width: 100%; padding: 10px; border: 1px solid #06C755; border-radius: 8px;">
-    </div>
+      </div>
 
-      <button
-        id="btnRegister"
-        onclick="registerToLaravel()"
-        style="
-          background-color: #06c755;
-          color: white;
-          border: none;
-          padding: 15px;
-          width: 100%;
-          border-radius: 8px;
-          font-size: 16px;
-          cursor: pointer;
-        "
-      >
+      <div style="margin-bottom: 15px">
+        <label style="font-weight: bold; display: block;">เบอร์โทรศัพท์:</label>
+        <input type="tel" id="input_phone" placeholder="08xxxxxxxx"
+          style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;" />
+      </div>
+
+      <button id="btnRegister" onclick="registerToLaravel()"
+        style="background-color: #06c755; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer;">
         ยืนยันลงทะเบียน
       </button>
     </div>
 
-    <!-- <input type="hidden" id="hidden_userId" /> -->
-
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-      function createUniversalLink() {}
+      // ฟังก์ชันดึงโปรไฟล์และใส่ค่าใน Input
+      async function getUserProfile() {
+        try {
+          const profile = await liff.getProfile();
+          if (document.getElementById("pictureUrl")) document.getElementById("pictureUrl").src = profile.pictureUrl;
+          if (document.getElementById("displayName")) document.getElementById("displayName").innerText = profile.displayName;
+          
+          // แก้ไข: ใช้ .value สำหรับช่อง input
+          if (document.getElementById("userId")) {
+            document.getElementById("userId").value = profile.userId;
+          }
+        } catch (err) {
+          console.error("Failed to get profile", err);
+        }
+      }
 
-      async function shareMsg() {}
-
-      function logOut() {}
-
-      function closed() {}
-
-      async function scanCode() {}
-
-      function openWindow() {}
-
+      // เช็คสถานะการเป็นเพื่อน
       async function getFriendship() {
         const friend = await liff.getFriendship();
-        document.getElementById("friendship").append(friend.friendFlag);
         if (!friend.friendFlag) {
-          if (confirm("คุณยังไม่ได้เพิ่ม Bot เป็นเพื่อน จะเพิ่มเลยไหม?")) {
-            window.location = "https://line.me/R/ti/p/@YOUR-BOT-ID";
+          if (confirm("กรุณาเพิ่มเราเป็นเพื่อน เพื่อรับแจ้งเตือนเอกสาร")) {
+            window.location = "https://line.me/R/ti/p/@YOUR-BOT-ID"; // เปลี่ยนเป็น ID ของคุณ
           }
         }
       }
 
-      async function sendMsg() {
-        if (liff.getContext().type !== "none") {
-          await liff.sendMessages([
-            {
-              type: "sticker",
-              stickerId: 1,
-              packageId: 1,
-            },
-          ]);
-          alert("Message sent");
-        }
-      }
-
-      function getContext() {
-        if (liff.getContext() != null) {
-          document.getElementById("type").append(liff.getContext().type);
-          document
-            .getElementById("viewType")
-            .append(liff.getContext().viewType);
-          document.getElementById("utouId").append(liff.getContext().utouId);
-          document.getElementById("roomId").append(liff.getContext().roomId);
-          document.getElementById("groupId").append(liff.getContext().groupId);
-        }
-      }
-
-      async function getUserProfile() {
-        const profile = await liff.getProfile();
-        document.getElementById("pictureUrl").src = profile.pictureUrl;
-        // document.getElementById("userId").append(profile.userId);
-        document.getElementById("userId").value = profile.userId;
-        document.getElementById("statusMessage").append(profile.statusMessage);
-        document.getElementById("displayName").append(profile.displayName);
-        document
-          .getElementById("decodedIDToken")
-          .append(liff.getDecodedIDToken().email);
-      }
-
-      function getEnvironment() {
-        document.getElementById("os").append(liff.getOS());
-        document.getElementById("language").append(liff.getLanguage());
-        document.getElementById("version").append(liff.getVersion());
-        document.getElementById("accessToken").append(liff.getAccessToken());
-        document.getElementById("isInClient").append(liff.isInClient());
-
-        if (liff.isInClient()) {
-          document.getElementById("btnLogOut").style.display = "none";
-        } else {
-          document.getElementById("btnMsg").style.display = "none";
-          document.getElementById("btnScanCode").style.display = "none";
-          document.getElementById("btnClose").style.display = "none";
-        }
-      }
-
+      // ส่งข้อมูลไป Laravel
       async function registerToLaravel() {
-        const userId =
-          liff.getDecodedIDToken().sub || (await liff.getProfile()).userId;
+        const userId = document.getElementById("userId").value;
         const customerId = document.getElementById("input_customer_id").value;
         const phone = document.getElementById("input_phone").value;
 
@@ -173,7 +75,10 @@
           return;
         }
 
-        // เปลี่ยน URL เป็นของ Laravel ของคุณ
+        const btn = document.getElementById("btnRegister");
+        btn.disabled = true;
+        btn.innerText = "กำลังบันทึก...";
+
         const API_URL = "https://your-laravel-domain.com/api/register-line";
 
         try {
@@ -181,7 +86,7 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Accept: "application/json",
+              "Accept": "application/json",
             },
             body: JSON.stringify({
               line_user_id: userId,
@@ -194,24 +99,32 @@
 
           if (result.success) {
             alert("ลงทะเบียนสำเร็จ!");
-            liff.closeWindow(); // ปิดหน้าต่าง LIFF ทันที
+            liff.closeWindow();
           } else {
-            alert("เกิดข้อผิดพลาด: " + result.message);
+            alert("ผิดพลาด: " + result.message);
+            btn.disabled = false;
+            btn.innerText = "ยืนยันลงทะเบียน";
           }
         } catch (error) {
           console.error("Error:", error);
-          alert("ติดต่อ Server ไม่ได้ (เช็ค CORS หรือ URL)");
+          alert("ไม่สามารถติดต่อ Server ได้ (ตรวจสอบ CORS)");
+          btn.disabled = false;
+          btn.innerText = "ยืนยันลงทะเบียน";
         }
       }
 
       async function main() {
-        await liff.init({ liffId: "2009812371-Yf0qjao3" });
-        getEnvironment();
-        getUserProfile();
-        getContext();
-        getFriendship();
-        // createUniversalLink()
-
+        try {
+          await liff.init({ liffId: "2009812371-Yf0qjao3" });
+          if (liff.isLoggedIn()) {
+            getUserProfile();
+            getFriendship();
+          } else {
+            liff.login();
+          }
+        } catch (err) {
+          console.error("LIFF Init failed", err);
+        }
       }
       main();
     </script>
