@@ -11,71 +11,108 @@
     <p id="displayName" style="text-align: center; font-weight: bold"></p>
 
     <div id="registration-form" style="padding: 20px">
-      
       <div style="margin-bottom: 15px;">
         <label style="font-weight: bold; display: block;">LINE User ID:</label>
-        <input type="text" id="userId" readonly 
-            style="width: 100%; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; color: #666;">
+        <input
+          type="text"
+          id="userId"
+          readonly
+          style="width: 100%; padding: 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; color: #666;"
+        />
       </div>
 
       <div style="margin-bottom: 15px;">
         <label style="font-weight: bold; display: block;">รหัสลูกค้า / เลขบัตรประชาชน:</label>
-        <input type="text" id="input_customer_id" placeholder="กรุณากรอกรหัสของคุณ" 
-            style="width: 100%; padding: 10px; border: 1px solid #06C755; border-radius: 8px;">
+        <input
+          type="text"
+          id="input_customer_id"
+          placeholder="กรุณากรอกรหัสของคุณ"
+          style="width: 100%; padding: 10px; border: 1px solid #06C755; border-radius: 8px;"
+        />
       </div>
 
       <div style="margin-bottom: 15px">
         <label style="font-weight: bold; display: block;">เบอร์โทรศัพท์:</label>
-        <input type="tel" id="input_phone" placeholder="08xxxxxxxx"
-          style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;" />
+        <input
+          type="tel"
+          id="input_phone"
+          placeholder="08xxxxxxxx"
+          style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"
+        />
       </div>
 
-      <button id="btnRegister" onclick="registerToLaravel()"
-        style="background-color: #06c755; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer;">
+      <button
+        id="btnRegister"
+        onclick="registerToLaravel()"
+        style="background-color: #06c755; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 16px; cursor: pointer;"
+      >
         ยืนยันลงทะเบียน
       </button>
     </div>
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-      // ฟังก์ชันดึงโปรไฟล์และใส่ค่าใน Input
       async function getUserProfile() {
         try {
           const profile = await liff.getProfile();
-          if (document.getElementById("pictureUrl")) document.getElementById("pictureUrl").src = profile.pictureUrl;
-          if (document.getElementById("displayName")) document.getElementById("displayName").innerText = profile.displayName;
-          
-          // แก้ไข: ใช้ .value สำหรับช่อง input
-          if (document.getElementById("userId")) {
-            document.getElementById("userId").value = profile.userId;
+
+          const pictureEl = document.getElementById("pictureUrl");
+          const displayNameEl = document.getElementById("displayName");
+          const userIdEl = document.getElementById("userId");
+
+          if (pictureEl && profile.pictureUrl) {
+            pictureEl.src = profile.pictureUrl;
+          }
+
+          if (displayNameEl) {
+            displayNameEl.innerText = profile.displayName || "";
+          }
+
+          if (userIdEl) {
+            userIdEl.value = profile.userId || "";
           }
         } catch (err) {
-          console.error("Failed to get profile", err);
+          console.error("Failed to get profile:", err);
+          alert("ไม่สามารถดึงข้อมูลโปรไฟล์ LINE ได้");
         }
       }
 
-      // เช็คสถานะการเป็นเพื่อน
       async function getFriendship() {
-        const friend = await liff.getFriendship();
-        if (!friend.friendFlag) {
-          if (confirm("กรุณาเพิ่มเราเป็นเพื่อน เพื่อรับแจ้งเตือนเอกสาร")) {
-            window.location = "https://line.me/R/ti/p/@YOUR-BOT-ID"; // เปลี่ยนเป็น ID ของคุณ
+        try {
+          const friend = await liff.getFriendship();
+          if (!friend.friendFlag) {
+            const goAdd = confirm("กรุณาเพิ่มเราเป็นเพื่อน เพื่อรับแจ้งเตือนเอกสาร");
+            if (goAdd) {
+              window.location.href = "https://line.me/R/ti/p/@YOUR-BOT-ID";
+            }
           }
+        } catch (err) {
+          console.error("Failed to get friendship:", err);
         }
       }
 
-      // ส่งข้อมูลไป Laravel
       async function registerToLaravel() {
-        const userId = document.getElementById("userId").value;
-        const customerId = document.getElementById("input_customer_id").value;
-        const phone = document.getElementById("input_phone").value;
+        const userId = document.getElementById("userId").value.trim();
+        const customerId = document.getElementById("input_customer_id").value.trim();
+        const phone = document.getElementById("input_phone").value.trim();
+        const btn = document.getElementById("btnRegister");
+
+        if (!userId) {
+          alert("ไม่พบ LINE User ID กรุณาเข้าใช้งานผ่าน LIFF");
+          return;
+        }
 
         if (!customerId || !phone) {
           alert("กรุณากรอกข้อมูลให้ครบถ้วน");
           return;
         }
 
-        const btn = document.getElementById("btnRegister");
+        const phoneRegex = /^0[0-9]{9}$/;
+        if (!phoneRegex.test(phone)) {
+          alert("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+          return;
+        }
+
         btn.disabled = true;
         btn.innerText = "กำลังบันทึก...";
 
@@ -86,28 +123,43 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Accept": "application/json",
+              "Accept": "application/json"
             },
             body: JSON.stringify({
               line_user_id: userId,
               customer_id: customerId,
-              phone: phone,
-            }),
+              phone: phone
+            })
           });
 
-          const result = await response.json();
+          const text = await response.text();
+          let result = {};
+
+          try {
+            result = JSON.parse(text);
+          } catch (e) {
+            throw new Error("Response ไม่ใช่ JSON: " + text);
+          }
+
+          if (!response.ok) {
+            throw new Error(result.message || "เกิดข้อผิดพลาดจาก Server");
+          }
 
           if (result.success) {
             alert("ลงทะเบียนสำเร็จ!");
-            liff.closeWindow();
+            if (liff.isInClient()) {
+              liff.closeWindow();
+            } else {
+              window.close();
+            }
           } else {
-            alert("ผิดพลาด: " + result.message);
+            alert("ผิดพลาด: " + (result.message || "ไม่ทราบสาเหตุ"));
             btn.disabled = false;
             btn.innerText = "ยืนยันลงทะเบียน";
           }
         } catch (error) {
-          console.error("Error:", error);
-          alert("ไม่สามารถติดต่อ Server ได้ (ตรวจสอบ CORS)");
+          console.error("Register error:", error);
+          alert("ไม่สามารถติดต่อ Server ได้: " + error.message);
           btn.disabled = false;
           btn.innerText = "ยืนยันลงทะเบียน";
         }
@@ -116,16 +168,20 @@
       async function main() {
         try {
           await liff.init({ liffId: "2009812371-Yf0qjao3" });
-          if (liff.isLoggedIn()) {
-            getUserProfile();
-            getFriendship();
-          } else {
+
+          if (!liff.isLoggedIn()) {
             liff.login();
+            return;
           }
+
+          await getUserProfile();
+          await getFriendship();
         } catch (err) {
-          console.error("LIFF Init failed", err);
+          console.error("LIFF Init failed:", err);
+          alert("LIFF เริ่มต้นไม่สำเร็จ");
         }
       }
+
       main();
     </script>
   </body>
